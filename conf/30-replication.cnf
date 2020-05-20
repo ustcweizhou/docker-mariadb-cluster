@@ -1,0 +1,7 @@
+[mysqld]
+log_bin = /var/log/mysql/mariadb-bin
+sync_binlog = 0
+log_bin_index = /var/log/mysql/mariadb-bin.index
+expire_logs_days = 3
+max_binlog_size = 100M
+

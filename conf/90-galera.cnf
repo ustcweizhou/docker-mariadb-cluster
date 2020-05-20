@@ -1,0 +1,22 @@
+[mysqld]
+query_cache_size = 0
+binlog_format = ROW
+default_storage_engine = InnoDB
+innodb_autoinc_lock_mode = 2
+innodb_doublewrite = 1
+server_id = 1
+wsrep_gtid_mode = ON
+wsrep_gtid_domain_id = 0
+gtid_domain_id = 1
+wsrep_node_name = db01
+log_slave_updates = ON
+innodb_flush_log_at_trx_commit = 2
+wsrep_on = ON
+wsrep_provider_options = "gcache.size=512M"
+wsrep_cluster_address = "gcomm://172.17.0.2,172.17.0.3,172.17.0.4"
+wsrep_cluster_name = mariadb
+wsrep_sst_method = rsync
+wsrep_sst_auth = mariabackup:mypassword
+wsrep_provider = /usr/lib/galera/libgalera_smm.so
+wsrep_slave_threads = 192
+wsrep_node_address = 172.17.0.2
