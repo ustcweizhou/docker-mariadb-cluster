@@ -1,0 +1,75 @@
+version: "2.4"
+services:
+  db01:
+    image: ustcweizhou/mariadb-cluster-ubuntu18
+    hostname: db01
+    networks:
+        br-db:
+            ipv4_address: 172.16.10.1
+    volumes:
+      - ./db01:/var/lib/mysql
+    healthcheck:
+        test: ["CMD", "mysqladmin", "-uroot", "-pcloudstack", "ping"]
+        interval: 10s
+        timeout: 10s
+        retries: 60
+        start_period: 10s
+    environment:
+      - NODE_NAME=db01
+      - CLUSTER_ADDRESS=gcomm://db01,db02,db03
+    command: new
+
+  db02:
+    image: ustcweizhou/mariadb-cluster-ubuntu18
+    hostname: db02
+    depends_on:
+        db01:
+            condition: service_healthy
+    networks:
+        br-db:
+            ipv4_address: 172.16.10.2
+    volumes:
+      - ./db02:/var/lib/mysql
+    environment:
+      - NODE_NAME=db02
+      - CLUSTER_ADDRESS=gcomm://db01,db02,db03
+      
+  db03:
+    image: ustcweizhou/mariadb-cluster-ubuntu18
+    hostname: db03
+    depends_on:
+        db01:
+            condition: service_healthy
+    networks:
+        br-db:
+            ipv4_address: 172.16.10.3
+    volumes:
+      - ./db03:/var/lib/mysql
+    environment:
+      - NODE_NAME=db03
+      - CLUSTER_ADDRESS=gcomm://db01,db02,db03
+
+  dbvip:
+    image: nginx
+    hostname: dbvip
+    networks:
+        br-db:
+            ipv4_address: 172.16.10.4
+    ports:
+        - "13306:3306"
+    volumes:
+      - ./nginx-galera.conf:/etc/nginx/nginx.conf
+    depends_on:
+        db01:
+            condition: service_healthy
+
+networks:
+    br-db:
+        driver: bridge
+        driver_opts:
+            com.docker.network.bridge.name: "br-db"
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.16.10.0/24
+                  gateway: 172.16.10.254
