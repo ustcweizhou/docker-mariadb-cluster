@@ -9,7 +9,7 @@ services:
     volumes:
       - ./db01:/var/lib/mysql
     healthcheck:
-        test: ["CMD", "mysqladmin", "-uroot", "-pcloudstack", "ping"]
+        test: ["CMD", "mysqladmin", "-uroot", "-pmypassword", "ping"]
         interval: 10s
         timeout: 10s
         retries: 60

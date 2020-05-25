@@ -15,7 +15,7 @@ wsrep_on = ON
 wsrep_provider_options = "gcache.size=512M"
 wsrep_cluster_address =
 wsrep_cluster_name = mariadb
-wsrep_sst_method = rsync
+wsrep_sst_method = mariabackup
 wsrep_sst_auth = mariabackup:mypassword
 wsrep_provider = /usr/lib/galera/libgalera_smm.so
 wsrep_slave_threads = 192
