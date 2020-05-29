@@ -19,7 +19,6 @@ services:
       - CLUSTER_ADDRESS=gcomm://db01,db02,db03
       - DB_ROOT_PASSWORD=cloudstack
       - DB_MARIABACKUP_PASSWORD=cloudstack
-    command: new
 
   db02:
     image: ustcweizhou/mariadb-cluster:ubuntu18-10.4
