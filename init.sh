@@ -3,6 +3,8 @@ set -e
 
 IP=$(hostname --ip-address | cut -d" " -f1)
 INIT_SQL="/init.sql"
+INIT_LOG="/init.log"
+ln -sf /proc/$$/fd/1 $INIT_LOG
 
 check_server_status() {
     server=$1
@@ -54,10 +56,15 @@ if [ "$new_cluster" = "true" ];then
 fi
 
 if [ ! -d "/var/lib/mysql/mysql" ];then
+    echo "====== Installing mysql from scratch ======" >>$INIT_LOG
     mysql_install_db --datadir="/var/lib/mysql/" --user=mysql
     if [ "$new_cluster" = "true" ];then
         cmd+=" --init-file=$INIT_SQL"
     fi
+elif [ "$new_cluster" = "true" ] && [ -f "/var/lib/mysql/grastate.dat" ];then
+    echo "====== Starting existing mariadb cluster ======" >>$INIT_LOG
+    sed -i "s|^safe_to_bootstrap: 0|safe_to_bootstrap: 1|g" /var/lib/mysql/grastate.dat
+    echo "====== Updated safe_to_bootstrap to 1 in /var/lib/mysql/grastate.dat ======" >>$INIT_LOG
 fi
 
 if [ ! -f "$INIT_SQL" ];then
@@ -71,4 +78,5 @@ FLUSH PRIVILEGES;
 EOF
 fi
 
+echo "====== Executing command: $cmd ======" >>$INIT_LOG
 $cmd

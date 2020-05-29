@@ -7,7 +7,7 @@ services:
         br-db:
             ipv4_address: 172.16.10.1
     volumes:
-      - ./db01:/var/lib/mysql
+      - ../db01:/var/lib/mysql
     healthcheck:
         test: ["CMD", "mysqladmin", "-uroot", "-pcloudstack", "ping"]
         interval: 10s
@@ -30,7 +30,7 @@ services:
         br-db:
             ipv4_address: 172.16.10.2
     volumes:
-      - ./db02:/var/lib/mysql
+      - ../db02:/var/lib/mysql
     environment:
       - NODE_NAME=db02
       - CLUSTER_ADDRESS=gcomm://db01,db02,db03
@@ -47,7 +47,7 @@ services:
         br-db:
             ipv4_address: 172.16.10.3
     volumes:
-      - ./db03:/var/lib/mysql
+      - ../db03:/var/lib/mysql
     environment:
       - NODE_NAME=db03
       - CLUSTER_ADDRESS=gcomm://db01,db02,db03
