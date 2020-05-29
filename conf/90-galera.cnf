@@ -20,3 +20,4 @@ wsrep_sst_auth = mariabackup:mypassword
 wsrep_provider = /usr/lib/galera/libgalera_smm.so
 wsrep_slave_threads = 192
 wsrep_node_address =
+wsrep_node_incoming_address =

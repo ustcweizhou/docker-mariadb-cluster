@@ -21,6 +21,7 @@ if [ -z "$CLUSTER_ADDRESS" ];then
 else
     sed -i "s|^wsrep_cluster_address =.*|wsrep_cluster_address = '${CLUSTER_ADDRESS}'|g" /etc/mysql/conf.d/90-galera.cnf
     sed -i "s|^wsrep_node_address =.*|wsrep_node_address = ${IP}|g" /etc/mysql/conf.d/90-galera.cnf
+    sed -i "s|^wsrep_node_incoming_address =.*|wsrep_node_incoming_address = ${IP}|g" /etc/mysql/conf.d/90-galera.cnf
 fi
 
 if [ -z "${DB_ROOT_PASSWORD}" ];then
