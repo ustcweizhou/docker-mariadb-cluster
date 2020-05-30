@@ -2,18 +2,47 @@
 set -e
 
 IP=$(hostname --ip-address | cut -d" " -f1)
+HOSTNAME=$(hostname -s)
+
 INIT_SQL="/init.sql"
 INIT_LOG="/init.log"
 ln -sf /proc/$$/fd/1 $INIT_LOG
 
+if [ -z "$CHECK_MAX_RETRIES" ];then
+    CHECK_MAX_RETRIES=60
+fi
+
+if [ -z "$CHECK_INTERVAL" ];then
+    CHECK_INTERVAL=1
+fi
+
 check_server_status() {
-    server=$1
+    local server=$1
     mysql -h $server -uroot -p${DB_ROOT_PASSWORD} -e 'SELECT 1' >/dev/null 2>&1
     if [ $? -ne 0 ];then
         echo "Failed to connect database on $server"
     fi
 }
 
+wait_for_server_to_be_up() {
+    local server=$1
+    local retry=$CHECK_MAX_RETRIES
+    echo -n "====== Checking server $server status " >>$INIT_LOG
+    while [ $retry -gt 0 ];do
+        echo -n "." >>$INIT_LOG
+        status=$(check_server_status $server)
+        if [ -z "$status" ];then
+            echo " Done ======" >>$INIT_LOG
+            break
+        fi
+        let retry=retry-1
+        sleep $CHECK_INTERVAL
+    done
+    if [ $retry -eq 0 ];then
+        echo " timeout. Exiting  ======" >>$INIT_LOG
+        exit 1
+    fi
+}
 mkdir -p /var/log/mysql
 chown -R mysql:mysql /var/lib/mysql /var/log/mysql
 
@@ -38,10 +67,18 @@ else
     sed -i "s|^wsrep_sst_auth =.*|wsrep_sst_auth = mariabackup:${DB_MARIABACKUP_PASSWORD}|g" /etc/mysql/conf.d/90-galera.cnf
 fi
 
+master_server=
+is_master_server=true
 new_cluster=true
 hosts=$(echo $CLUSTER_ADDRESS | rev | cut -d '/' -f1 | rev | tr "," " ")
 if [ ! -z "$hosts" ];then
     for host in $hosts;do
+        if [ -z "$master_server" ];then
+            master_server=$host     # master server is the first server in CLUSTER_ADDRESS
+            if [ "$master_server" != "$IP" ] && [ "$master_server" != "$HOSTNAME" ];then
+                is_master_server=false
+            fi
+        fi
         status=$(check_server_status $host)
         if [ -z "$status" ];then
             new_cluster=false
@@ -52,7 +89,11 @@ fi
 
 cmd="mysqld"
 if [ "$new_cluster" = "true" ];then
-    cmd+=" --wsrep-new-cluster"
+    if [ "$is_master_server" = "true" ];then
+        cmd+=" --wsrep-new-cluster"
+    else
+        wait_for_server_to_be_up $master_server
+    fi
 fi
 
 if [ ! -d "/var/lib/mysql/mysql" ];then

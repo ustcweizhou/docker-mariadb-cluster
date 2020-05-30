@@ -1,4 +1,4 @@
-version: "2.4"
+version: "3"
 services:
   db01:
     image: ustcweizhou/mariadb-cluster:ubuntu18-10.4
@@ -13,7 +13,6 @@ services:
         interval: 10s
         timeout: 10s
         retries: 60
-        start_period: 10s
     environment:
       - NODE_NAME=db01
       - CLUSTER_ADDRESS=gcomm://db01,db02,db03
@@ -24,8 +23,7 @@ services:
     image: ustcweizhou/mariadb-cluster:ubuntu18-10.4
     hostname: db02
     depends_on:
-        db01:
-            condition: service_healthy
+      - db01
     networks:
         br-db:
             ipv4_address: 172.16.10.12
@@ -41,8 +39,7 @@ services:
     image: ustcweizhou/mariadb-cluster:ubuntu18-10.4
     hostname: db03
     depends_on:
-        db01:
-            condition: service_healthy
+      - db01
     networks:
         br-db:
             ipv4_address: 172.16.10.13
@@ -65,8 +62,7 @@ services:
     volumes:
       - ./nginx-galera.conf:/etc/nginx/nginx.conf
     depends_on:
-        db01:
-            condition: service_healthy
+      - db01
 
 networks:
     br-db:
@@ -77,4 +73,3 @@ networks:
             driver: default
             config:
                 - subnet: 172.16.10.0/24
-                  gateway: 172.16.10.254
