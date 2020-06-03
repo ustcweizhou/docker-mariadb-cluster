@@ -39,3 +39,13 @@ When all containsers are running, there is a nginx container running with nginx-
     mariadb-cluster_db02_1    /init.sh               Up             3306/tcp, 4444/tcp, 4567/tcp, 4568/tcp
     mariadb-cluster_db03_1    /init.sh               Up             3306/tcp, 4444/tcp, 4567/tcp, 4568/tcp
     mariadb-cluster_dbvip_1   nginx -g daemon off;   Up             0.0.0.0:13306->3306/tcp, 80/tcp
+
+    # mysql -h 127.0.0.1 -P13306 -uroot -pcloudstack -e "show status where variable_name in ('wsrep_cluster_status', 'wsrep_incoming_addresses','wsrep_local_state_comment');"
+    +---------------------------+----------------------------------------+
+    | Variable_name             | Value                                  |
+    +---------------------------+----------------------------------------+
+    | wsrep_local_state_comment | Synced                                 |
+    | wsrep_incoming_addresses  | 172.16.10.11,172.16.10.12,172.16.10.13 |
+    | wsrep_cluster_status      | Primary                                |
+    +---------------------------+----------------------------------------+
+
