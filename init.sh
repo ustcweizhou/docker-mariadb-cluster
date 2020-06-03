@@ -18,10 +18,17 @@ fi
 
 check_server_status() {
     local server=$1
-    mysql -h $server -uroot -p${DB_ROOT_PASSWORD} -e 'SELECT 1' >/dev/null 2>&1
+    set +e
+    local status=$(mysql -h $server -uroot -p${DB_ROOT_PASSWORD} -NB -e "SHOW STATUS WHERE Variable_name='wsrep_local_state_comment'")
     if [ $? -ne 0 ];then
         echo "Failed to connect database on $server"
+    else
+        status=$(echo $status | awk '{print $2}')
+        if [ "$status" != "Synced" ];then
+            echo "Database server $server is not Synced but $status"
+        fi
     fi
+    set -e
 }
 
 wait_for_server_to_be_up() {
