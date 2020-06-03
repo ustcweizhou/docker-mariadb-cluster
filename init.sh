@@ -103,7 +103,7 @@ if [ ! -d "/var/lib/mysql/mysql" ];then
     if [ "$new_cluster" = "true" ];then
         cmd+=" --init-file=$INIT_SQL"
     fi
-elif [ "$new_cluster" = "true" ] && [ -f "/var/lib/mysql/grastate.dat" ];then
+elif [ "$new_cluster" = "true" ] && [ -f "/var/lib/mysql/grastate.dat" ] && [ "$is_master_server" = "true" ];then
     echo "====== Starting existing mariadb cluster ======" >>$INIT_LOG
     sed -i "s|^safe_to_bootstrap: 0|safe_to_bootstrap: 1|g" /var/lib/mysql/grastate.dat
     echo "====== Updated safe_to_bootstrap to 1 in /var/lib/mysql/grastate.dat ======" >>$INIT_LOG
