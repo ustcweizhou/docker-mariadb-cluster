@@ -1,0 +1,67 @@
+version: "3.7"
+services:
+  db01:
+    image: ustcweizhou/mariadb-cluster:ubuntu18-10.4
+    hostname: db01
+    networks:
+        overlay-db:
+    volumes:
+      - ${DATA_DIR}/$PROJECT/db01:/var/lib/mysql
+    environment:
+      - NODE_NAME=db01
+      - CLUSTER_ADDRESS=gcomm://db01,db02,db03
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - DB_MARIABACKUP_PASSWORD=${DB_MARIABACKUP_PASSWORD}
+
+  db02:
+    image: ustcweizhou/mariadb-cluster:ubuntu18-10.4
+    hostname: db02
+    networks:
+        overlay-db:
+    volumes:
+      - ${DATA_DIR}/$PROJECT/db02:/var/lib/mysql
+    environment:
+      - NODE_NAME=db02
+      - CLUSTER_ADDRESS=gcomm://db01,db02,db03
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - DB_MARIABACKUP_PASSWORD=${DB_MARIABACKUP_PASSWORD}
+
+  db03:
+    image: ustcweizhou/mariadb-cluster:ubuntu18-10.4
+    hostname: db03
+    networks:
+        overlay-db:
+    volumes:
+      - ${DATA_DIR}/$PROJECT/db03:/var/lib/mysql
+    environment:
+      - NODE_NAME=db03
+      - CLUSTER_ADDRESS=gcomm://db01,db02,db03
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - DB_MARIABACKUP_PASSWORD=${DB_MARIABACKUP_PASSWORD}
+
+  dbvip:
+    image: nginx
+    hostname: dbvip
+    networks:
+        overlay-db:
+    ports:
+        - "13306:3306"
+    configs:
+        - source: nginx-galera
+          target: /etc/nginx/nginx.conf
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+configs:
+    nginx-galera:
+        file: ./nginx-galera.conf
+
+networks:
+    overlay-db:
+        driver: overlay
+        attachable: true
+        ipam:
+            driver: default
+            config:
+                - subnet: 192.168.10.0/24
