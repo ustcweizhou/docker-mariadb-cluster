@@ -1,11 +1,11 @@
-FROM        ubuntu:18.04
+FROM        ubuntu:20.04
 MAINTAINER  Wei Zhou <ustcweizhou@gmail.com>
 
 ENV         DEBIAN_FRONTEND noninteractive
 
 RUN         apt update -qq && \
             apt upgrade -y && \
-            apt install -y curl iproute2 net-tools iputils-ping
+            apt install -y curl iproute2 net-tools iputils-ping apt-transport-https
 
 RUN         groupadd -r mysql && useradd -r -g mysql mysql && \
             mkdir -p /var/run/mysqld && \

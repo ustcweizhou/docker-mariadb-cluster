@@ -1,7 +1,7 @@
 version: "2.4"
 services:
   db01:
-    image: ustcweizhou/mariadb-cluster:ubuntu18-10.4
+    image: ustcweizhou/mariadb-cluster:latest
     hostname: db01
     networks:
         br-db:
@@ -21,7 +21,7 @@ services:
       - DB_MARIABACKUP_PASSWORD=cloudstack
 
   db02:
-    image: ustcweizhou/mariadb-cluster:ubuntu18-10.4
+    image: ustcweizhou/mariadb-cluster:latest
     hostname: db02
     depends_on:
         db01:
@@ -38,7 +38,7 @@ services:
       - DB_MARIABACKUP_PASSWORD=cloudstack
       
   db03:
-    image: ustcweizhou/mariadb-cluster:ubuntu18-10.4
+    image: ustcweizhou/mariadb-cluster:latest
     hostname: db03
     depends_on:
         db01:
