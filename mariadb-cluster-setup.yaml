@@ -31,6 +31,12 @@ services:
             ipv4_address: 172.16.10.12
     volumes:
       - /docker/db02:/var/lib/mysql
+    healthcheck:
+        test: ["CMD", "mysqladmin", "-uroot", "-pcloudstack", "ping"]
+        interval: 10s
+        timeout: 10s
+        retries: 60
+        start_period: 10s
     environment:
       - NODE_NAME=db02
       - CLUSTER_ADDRESS=gcomm://db01,db02,db03
@@ -42,6 +48,8 @@ services:
     hostname: db03
     depends_on:
         db01:
+            condition: service_healthy
+        db02:
             condition: service_healthy
     networks:
         br-db:
