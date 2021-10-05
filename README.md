@@ -56,3 +56,4 @@ When all containsers are running, there is a nginx container running with nginx-
 
     v1.0        Ubuntu 18.04 and Mariadb 10.4
     v1.1        Ubuntu 20.04 and Mariadb 10.5.8
+    v1.2        Ubuntu 20.04 and Mariadb 10.5.12
