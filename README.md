@@ -22,7 +22,7 @@ init.sh :
 ## Docker image
  The docker image can be found at https://hub.docker.com/repository/docker/ustcweizhou/mariadb-cluster
 
-## Example
+## Example (DBs use private IP and accessible via nginx)
 
 You can test with command:
 
@@ -51,6 +51,40 @@ When all containsers are running, there is a nginx container running with nginx-
     | wsrep_incoming_addresses  | 172.16.10.11,172.16.10.12,172.16.10.13 |
     | wsrep_cluster_status      | Primary                                |
     +---------------------------+----------------------------------------+
+
+## Example (DBs use public IPs which are directly accessible)
+
+You can test with command:
+
+    docker-compose -f mariadb-cluster-setup-macvlan.yaml up -d
+
+When all containsers are running, 
+
+    # docker-compose -f mariadb-cluster-setup-macvlan.yaml ps
+                Name                Command       State       Ports
+    ---------------------------------------------------------------
+    docker-mariadb-cluster_db01_1   /init.sh   Up (healthy)        
+    docker-mariadb-cluster_db02_1   /init.sh   Up (healthy)        
+    docker-mariadb-cluster_db03_1   /init.sh   Up    
+
+The IPs are accessible, except the container host
+
+    # mysql -h 10.0.33.53 -P3306 -uroot -pcloudstack -e "show status where variable_name in ('wsrep_cluster_status', 'wsrep_incoming_addresses','wsrep_local_state_comment');"
+    mysql: [Warning] Using a password on the command line interface can be insecure.
+    +---------------------------+---------------------------------------------------+
+    | Variable_name             | Value                                             |
+    +---------------------------+---------------------------------------------------+
+    | wsrep_local_state_comment | Synced                                            |
+    | wsrep_incoming_addresses  | 10.0.33.53:3306,10.0.35.200:3306,10.0.33.212:3306 |
+    | wsrep_cluster_status      | Primary                                           |
+    +---------------------------+---------------------------------------------------+
+
+To access the service from the container host,
+
+    ip link add host-nic link eth0 type macvlan mode bridge
+    ip addr add 10.0.33.6/20 dev host-nic (only if the host IP is in different range as container IP)
+    ip link set host-nic up
+    ip route add 10.0.33.53/32 dev host-nic
 
 ## Releases
 
