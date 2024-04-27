@@ -1,0 +1,74 @@
+version: "3.8"
+services:
+  db01:
+    image: ustcweizhou/mariadb-cluster:latest
+    hostname: db01
+    networks:
+        bridge-mgmt:
+            ipv4_address: 10.0.33.53
+    volumes:
+      - /docker/db01:/var/lib/mysql
+    healthcheck:
+        test: ["CMD", "mysqladmin", "-uroot", "-pcloudstack", "ping"]
+        interval: 10s
+        timeout: 10s
+        retries: 60
+        start_period: 10s
+    environment:
+      - NODE_NAME=db01
+      - CLUSTER_ADDRESS=gcomm://db01,db02,db03
+      - DB_ROOT_PASSWORD=cloudstack
+      - DB_MARIABACKUP_PASSWORD=cloudstack
+
+  db02:
+    image: ustcweizhou/mariadb-cluster:latest
+    hostname: db02
+    depends_on:
+        db01:
+            condition: service_healthy
+    networks:
+        bridge-mgmt:
+            ipv4_address: 10.0.35.200
+    volumes:
+      - /docker/db02:/var/lib/mysql
+    healthcheck:
+        test: ["CMD", "mysqladmin", "-uroot", "-pcloudstack", "ping"]
+        interval: 10s
+        timeout: 10s
+        retries: 60
+        start_period: 10s
+    environment:
+      - NODE_NAME=db02
+      - CLUSTER_ADDRESS=gcomm://db01,db02,db03
+      - DB_ROOT_PASSWORD=cloudstack
+      - DB_MARIABACKUP_PASSWORD=cloudstack
+      
+  db03:
+    image: ustcweizhou/mariadb-cluster:latest
+    hostname: db03
+    depends_on:
+        db01:
+            condition: service_healthy
+        db02:
+            condition: service_healthy
+    networks:
+        bridge-mgmt:
+            ipv4_address: 10.0.33.212
+    volumes:
+      - /docker/db03:/var/lib/mysql
+    environment:
+      - NODE_NAME=db03
+      - CLUSTER_ADDRESS=gcomm://db01,db02,db03
+      - DB_ROOT_PASSWORD=cloudstack
+      - DB_MARIABACKUP_PASSWORD=cloudstack
+
+networks:
+  bridge-mgmt:
+    driver: macvlan
+    driver_opts:
+      parent: eth0
+      com.docker.network.bridge.name: "bridge-mgmt"
+    ipam:
+      config:
+        - subnet: "10.0.32.0/20"
+          gateway: "10.0.32.1"
