@@ -1,4 +1,4 @@
-FROM        ubuntu:22.04
+FROM        ubuntu:24.04
 MAINTAINER  Wei Zhou <ustcweizhou@gmail.com>
 
 ENV         DEBIAN_FRONTEND noninteractive
