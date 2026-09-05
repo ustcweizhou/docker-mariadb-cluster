@@ -78,7 +78,7 @@ fi
 master_server=
 is_master_server=true
 new_cluster=true
-hosts=$(echo $CLUSTER_ADDRESS | rev | cut -d '/' -f1 | rev | tr "," " ")
+hosts=$(echo "${CLUSTER_ADDRESS##*/}" | tr "," " ")
 if [ ! -z "$hosts" ];then
     for host in $hosts;do
         if [ -z "$master_server" ];then

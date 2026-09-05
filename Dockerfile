@@ -1,4 +1,4 @@
-FROM        ubuntu:24.04
+FROM        ubuntu:26.04
 MAINTAINER  Wei Zhou <ustcweizhou@gmail.com>
 
 ENV         DEBIAN_FRONTEND noninteractive
@@ -11,9 +11,9 @@ RUN         groupadd -r mysql && useradd -r -g mysql mysql && \
             mkdir -p /var/run/mysqld && \
             chown mysql:mysql /var/run/mysqld
 
-RUN         curl -LsS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | bash && \
+RUN         curl -LsS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | bash -s -- --mariadb-server-version=latest --skip-maxscale && \
             apt update -qq && \
-            apt install -y mariadb-server mariadb-client mariadb-backup && \
+            apt install -y mariadb-server mariadb-client mariadb-backup mariadb-server-galera && \
             apt install -y galera-arbitrator-4 galera-4 && \
             rm -rf /var/lib/mysql && \
             mkdir /var/lib/mysql

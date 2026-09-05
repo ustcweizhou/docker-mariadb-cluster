@@ -164,3 +164,4 @@ To access the service from the container host,
     v1.3        Ubuntu 22.04 and Mariadb 11.3.2
     v1.4        Ubuntu 24.04 and Mariadb 11.7.2
     v1.5        Ubuntu 24.04 and Mariadb 12.2.2
+    v1.6        Ubuntu 26.04 and Mariadb 12.3.3
